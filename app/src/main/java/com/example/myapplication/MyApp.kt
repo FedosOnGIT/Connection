@@ -15,8 +15,21 @@ class MyApp : Application() {
             private set
     }
 
+    var adapter: PostAdapter? = null
     var posts: MutableList<Post> = mutableListOf()
     lateinit var service: PostsInterface
+
+    private fun fail() {
+        Toast.makeText(this@MyApp, "No Internet or bad connection", Toast.LENGTH_LONG).show()
+    }
+
+    private fun congratulations(string: String) {
+        Toast.makeText(
+            this@MyApp,
+            string,
+            Toast.LENGTH_SHORT
+        ).show()
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -28,46 +41,50 @@ class MyApp : Application() {
             .create(PostsInterface::class.java)
     }
 
-    fun load(change: () -> (Unit), fail: (Throwable) -> (Unit)) {
-        service.getPosts().enqueue(object : Callback<List<Post?>?> {
-            override fun onResponse(
-                call: Call<List<Post?>?>,
-                response: Response<List<Post?>?>
-            ) {
-                response.body()?.forEach { it ->
-                    if (it != null) {
-                        posts.add(it)
-                        change()
-                    }
-                }
-            }
 
-            override fun onFailure(call: Call<List<Post?>?>, t: Throwable) {
-                fail(t)
+    fun load(congratulations: () -> (Unit)) {
+        val success = fun(response: Response<List<Post>>) {
+            response.body()?.forEach { it ->
+                posts.add(it)
+                adapter?.notifyDataSetChanged()
             }
-        })
+            congratulations()
+        }
+        service.getPosts().enqueue(
+            function(success)
+        )
     }
 
-    fun delete(id : Int, change: () -> (Unit)) {
-        service.deletePost(id).enqueue(object : Callback<ResponseBody> {
-            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                posts.removeAt(id)
-                var index = 1
-                posts.forEach { it -> it.id = index++ }
-                change()
-            }
-
-            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                Toast.makeText(
-                    this@MyApp,
-                    "No connection or bad connection",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        })
+    fun delete(id: Int) {
+        val success = fun(_: Response<ResponseBody>) {
+            posts.removeAt(id)
+            var index = 1
+            posts.forEach { it -> it.id = index++ }
+            adapter?.notifyDataSetChanged()
+            congratulations("Post with id $id was successfully deleted!")
+        }
+        service.deletePost(id).enqueue(function(success))
     }
 
+    fun add(post: Post) {
+        val success = fun(_: Response<Post?>) {
+            posts.add(post)
+            adapter?.notifyDataSetChanged()
+            congratulations("Post was downloaded successfully!")
+        }
+        service.post(post).enqueue(function<Post?>(success))
+    }
 
+    private fun <T> function(success: (Response<T>) -> (Unit)): Callback<T> {
+        return object : Callback<T> {
+            override fun onResponse(call: Call<T>, response: Response<T>) {
+                success(response)
+            }
 
+            override fun onFailure(call: Call<T>, t: Throwable) {
+                fail()
+            }
 
+        }
+    }
 }

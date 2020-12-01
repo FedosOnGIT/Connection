@@ -16,7 +16,7 @@ class PostAdapter(
                 title.text = post.title
                 body.text = post.body
                 deletePost.setOnClickListener {
-                    MyApp.instance.delete(post.id - 1) { this@PostAdapter.notifyDataSetChanged() }
+                    MyApp.instance.delete(post.id - 1)
                 }
             }
         }

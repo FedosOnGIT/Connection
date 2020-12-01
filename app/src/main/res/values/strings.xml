@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">My Application</string>
     <string name="delete">delete</string>
+    <string name="EnterText">Введите текст</string>
+    <string name="Here_you_can_type_your_text">Здесь вы можете ввести свой текст</string>
+    <string name="EnterTitle">Введите заглавие</string>
+    <string name="EnterPost">Введите пост</string>
+    <string name="EnterNewPost">Сделать новый пост</string>
 </resources>

@@ -7,7 +7,7 @@ import retrofit2.http.*
 
 interface PostsInterface {
     @GET("posts")
-    fun getPosts(): Call<List<Post?>?>
+    fun getPosts(): Call<List<Post>>
 
     @DELETE("posts/{number}")
     fun deletePost(@Path("number") number: Int): Call<ResponseBody>
