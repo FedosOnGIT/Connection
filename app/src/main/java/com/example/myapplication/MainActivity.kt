@@ -6,7 +6,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.myapplication.MyApp.Companion.instance
+import androidx.room.Room
+import com.example.myapplication.adapter.CreatePost
+import com.example.myapplication.adapter.PostAdapter
+import com.example.myapplication.network.MyApp.Companion.instance
+import com.example.myapplication.room.AppDatabase
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -30,6 +34,15 @@ class MainActivity : AppCompatActivity() {
         button.setOnClickListener {
             val window = Intent(this, CreatePost::class.java)
             startActivity(window)
+        }
+        restore.setOnClickListener {
+            instance.restore {
+                Toast.makeText(
+                    this@MainActivity,
+                    "All posts have been restored",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
     }
 

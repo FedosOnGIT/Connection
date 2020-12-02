@@ -1,7 +1,13 @@
-package com.example.myapplication
+package com.example.myapplication.network
 
 import android.app.Application
+import android.provider.ContactsContract
 import android.widget.Toast
+import androidx.room.Database
+import androidx.room.Room
+import com.example.myapplication.Post
+import com.example.myapplication.adapter.PostAdapter
+import com.example.myapplication.room.AppDatabase
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -18,6 +24,7 @@ class MyApp : Application() {
     var adapter: PostAdapter? = null
     var posts: MutableList<Post> = mutableListOf()
     lateinit var service: PostsInterface
+    private lateinit var dataBase: AppDatabase
 
     private fun fail() {
         Toast.makeText(this@MyApp, "No Internet or bad connection", Toast.LENGTH_LONG).show()
@@ -39,29 +46,45 @@ class MyApp : Application() {
             .addConverterFactory(MoshiConverterFactory.create())
             .build()
             .create(PostsInterface::class.java)
+        dataBase = Room.databaseBuilder(this,
+            AppDatabase::class.java,
+            "Database")
+            .allowMainThreadQueries()
+            .build()
     }
 
 
     fun load(congratulations: () -> (Unit)) {
-        val success = fun(response: Response<List<Post>>) {
-            response.body()?.forEach { it ->
-                posts.add(it)
-                adapter?.notifyDataSetChanged()
+        val check = dataBase.postDao().getAllPosts() as MutableList<Post>
+        if (check.isEmpty()) {
+            val success = fun(response: Response<List<Post>>) {
+                response.body()?.forEach { it ->
+                    posts.add(it)
+                    dataBase.postDao().insertAll(it)
+                    adapter?.notifyDataSetChanged()
+                }
+                congratulations()
             }
-            congratulations()
+            service.getPosts().enqueue(
+                function(success)
+            )
+        } else {
+            check.forEach { posts.add(it) }
+            adapter?.notifyDataSetChanged()
         }
-        service.getPosts().enqueue(
-            function(success)
-        )
     }
 
     fun delete(id: Int) {
         val success = fun(_: Response<ResponseBody>) {
-            posts.removeAt(id)
             var index = 1
-            posts.forEach { it -> it.id = index++ }
+            for (post in posts) {
+                dataBase.postDao().delete(post)
+            }
+            posts.removeAt(id)
+            posts.forEach { it.id = index++ }
             adapter?.notifyDataSetChanged()
             congratulations("Post with id $id was successfully deleted!")
+            posts.forEach { dataBase.postDao().insertAll(it) }
         }
         service.deletePost(id).enqueue(function(success))
     }
@@ -72,7 +95,16 @@ class MyApp : Application() {
             adapter?.notifyDataSetChanged()
             congratulations("Post was downloaded successfully!")
         }
-        service.post(post).enqueue(function<Post?>(success))
+        dataBase.postDao().insertAll(post)
+        service.post(post).enqueue(function(success))
+    }
+
+    fun restore(congratulations: () -> Unit) {
+        for (post in posts) {
+            dataBase.postDao().delete(post)
+        }
+        posts.clear()
+        load(congratulations)
     }
 
     private fun <T> function(success: (Response<T>) -> (Unit)): Callback<T> {

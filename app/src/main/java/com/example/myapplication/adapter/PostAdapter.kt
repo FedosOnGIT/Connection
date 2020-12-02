@@ -1,10 +1,12 @@
-package com.example.myapplication
+package com.example.myapplication.adapter
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myapplication.R
+import com.example.myapplication.network.MyApp
+import com.example.myapplication.Post
 import kotlinx.android.synthetic.main.post.view.*
 
 class PostAdapter(
