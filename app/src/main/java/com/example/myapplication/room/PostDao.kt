@@ -6,12 +6,15 @@ import com.example.myapplication.Post
 @Dao
 interface PostDao {
 
-    @Insert
-    fun insertAll(vararg post: Post)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(vararg post: Post)
 
     @Delete
-    fun delete(vararg post: Post)
+    suspend fun delete(vararg post: Post)
 
     @Query("SELECT * FROM post")
-    fun getAllPosts() : List<Post>?
+    suspend fun getAllPosts() : List<Post>?
+
+    @Query("DELETE FROM post")
+    suspend fun deleteAll()
 }

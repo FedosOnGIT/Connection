@@ -15,7 +15,7 @@ class CreatePost : AppCompatActivity() {
             var userId = 1
             instance.posts.forEach { if (it.userId > userId) userId = it.userId }
             val post = Post(
-                instance.posts.size + 1,
+                instance.posts.last().id + 1,
                 EnterTitle.text.toString(),
                 EnterPost.text.toString(),
                 userId + 1

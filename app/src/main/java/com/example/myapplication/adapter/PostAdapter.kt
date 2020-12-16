@@ -12,13 +12,13 @@ import kotlinx.android.synthetic.main.post.view.*
 class PostAdapter(
     private val posts: List<Post>
 ) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
-    inner class PostViewHolder(val root : View) : RecyclerView.ViewHolder(root) {
+    inner class PostViewHolder(private val root : View) : RecyclerView.ViewHolder(root) {
         fun bind(post: Post) {
             with(root) {
                 title.text = post.title
                 body.text = post.body
                 deletePost.setOnClickListener {
-                    MyApp.instance.delete(post.id - 1)
+                    MyApp.instance.delete(post.id)
                 }
             }
         }
