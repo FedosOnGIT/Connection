@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.room.Room
 import com.example.myapplication.Post
 import com.example.myapplication.adapter.PostAdapter
@@ -62,7 +63,7 @@ class MyApp : Application() {
     }
 
     // shared preference
-    fun load(congratulations: () -> (Unit)) {
+    fun load() {
         if (emptyBase) {
             val success = fun(response: Response<List<Post>>) {
                 response.body()?.forEach { it ->
@@ -78,7 +79,7 @@ class MyApp : Application() {
                         apply()
                     }
                 }
-                congratulations()
+                congratulations("All posts have been uploaded")
             }
             service.getPosts().enqueue(
                 function(success)
@@ -106,6 +107,7 @@ class MyApp : Application() {
             CoroutineScope(Dispatchers.IO).launch {
                 dataBase.postDao().delete(posts[index])
             }
+            Log.i("Coroutines worked", index.toString())
             posts.removeAt(index)
             adapter?.notifyDataSetChanged()
             congratulations("Post with id $id was successfully deleted!")
@@ -131,7 +133,7 @@ class MyApp : Application() {
             withContext(Dispatchers.Main) {
                 posts.clear()
                 emptyBase = true
-                load(congratulations)
+                load()
             }
         }
     }

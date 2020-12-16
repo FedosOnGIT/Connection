@@ -23,13 +23,7 @@ class MainActivity : AppCompatActivity() {
         initRecycler()
         if (instance.posts.isEmpty()) {
             instance.adapter = recyclerView.adapter as PostAdapter?
-            instance.load() {
-                Toast.makeText(
-                    this@MainActivity,
-                    "All posts have been uploaded",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+            instance.load()
         }
         button.setOnClickListener {
             val window = Intent(this, CreatePost::class.java)
