@@ -30,13 +30,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(window)
         }
         restore.setOnClickListener {
-            instance.restore {
-                Toast.makeText(
-                    this@MainActivity,
-                    "All posts have been restored",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+            instance.restore()
         }
     }
 

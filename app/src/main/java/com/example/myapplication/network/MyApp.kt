@@ -127,7 +127,7 @@ class MyApp : Application() {
         }
     }
 
-    fun restore(congratulations: () -> Unit) {
+    fun restore() {
         CoroutineScope(Dispatchers.IO).launch {
             dataBase.postDao().deleteAll()
             withContext(Dispatchers.Main) {
